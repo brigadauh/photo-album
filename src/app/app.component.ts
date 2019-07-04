@@ -10,25 +10,22 @@ import { PhotoComponent } from './photo/photo.component';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  public fileElements: Observable<FileElement[]>;
-
-  constructor(public fileService: FileService) {}
+  //public fileElements: Observable<FileElement[]>;
 
   currentRoot: FileElement;
+  folderMap:FileElement[];
   currentPath: string = '';
   canNavigateUp = false;
   imageFile: any;
+  path: string;
+  nextImage:FileElement;
+  previousImage:FileElement;
+
+  constructor(public fileService: FileService) {}
 
   ngOnInit() {
-    // const folderA = this.fileService.add({ name: 'Folder A', isFolder: true, parent: 'root' });
-    // this.fileService.add({ name: 'Folder B', isFolder: true, parent: 'root' });
-    // this.fileService.add({ name: 'Folder C', isFolder: true, parent: folderA.id });
-    // this.fileService.add({ name: 'File A', isFolder: false, parent: 'root' });
-    // this.fileService.add({ name: 'File B', isFolder: false, parent: 'root' });
-    ////this.fileService._get('/').then(() => this.updateFileElementQuery());
     this.updateFileElementQuery();
   }
-
   addFolder(folder: { name: string }) {
     this.fileService.add({ isFolder: true, name: folder.name, parent: this.currentRoot ? this.currentRoot.id : 'root' });
     this.updateFileElementQuery();
@@ -49,11 +46,42 @@ export class AppComponent {
   showFile(element: FileElement) {
     this.currentRoot = element;
     //console.log('current element', element);
-    this.imageFile = this.fileService._getURL('/'+this.currentPath+this.currentRoot.name);
+    this.imageFile = this.fileService.getURL('/'+this.currentPath+this.currentRoot.name);
+    this.path = this.fileService.getURL('/'+this.currentPath);
     let photo = document.getElementById('photo_overlay');
     photo.style.display='';
-  }
+    this.nextImage = null;
+    this.previousImage = null;
+    //console.log('this.folderMap',this.folderMap);
+    for (let i = 0; i< this.folderMap.length; i++){
+      let fileName = this.folderMap[i];
+      //console.log('matching:', fileName.name, element.name);
+      if (fileName.name === element.name) {
+        //console.log('match', fileName.name, element.name);
+        //looking for next picture
+        for (let j = i+1; j < this.folderMap.length; j++) {
+          fileName = this.folderMap[j];
+          if (fileName.name.toLowerCase().indexOf('.jpg')!== -1 || fileName.name.toLowerCase().indexOf('.png')!== -1 || fileName.name.toLowerCase().indexOf('.gif')!== -1 ){
+            this.nextImage = fileName;
+            break;
+          }
+        }
+        break;
+      }
+      //defining previous picture
+      if (fileName.name.toLowerCase().indexOf('.jpg')!== -1 || fileName.name.toLowerCase().indexOf('.png')!== -1 || fileName.name.toLowerCase().indexOf('.gif')!== -1 ){
+        this.previousImage = fileName;
+      }
+    }
+    //console.log('prev/next:',this.previousImage, this.nextImage);
 
+  }
+  navigateNext() {
+    this.showFile(this.nextImage);
+  }
+  navigatePrevious() {
+    this.showFile(this.previousImage);
+  }
   navigateUp() {
     // if (this.currentRoot && this.currentRoot.parent === 'root') {
     //   this.currentRoot = null;
@@ -76,9 +104,14 @@ export class AppComponent {
   }
 
   updateFileElementQuery() {
-    this.fileService._get('/'+this.currentPath).then((folderMap) => {
-      this.fileElements = this.fileService.queryFolderMap();
-      //console.log('this.currentPath',this.currentPath, this.fileElements);
+    this.fileService.getdata('/'+this.currentPath).then((folderMap) => {
+      //console.log('updateFileElementQuery',this.currentPath, folderMap);
+      //this.fileElements = this.fileService.queryFolderMap();
+      let result = [];
+      folderMap.forEach(element => {
+          result.push(element);
+      });
+      this.folderMap = result;
     });
   }
 

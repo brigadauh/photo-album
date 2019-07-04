@@ -1,7 +1,7 @@
 <div style="padding: 100px; height: 100%; box-sizing: border-box;">
-  <app-photo [filename]="imageFile"></app-photo>
+  <app-photo [currentImage]="imageFile" [previousImage]="previousImage" [nextImage]="nextImage" [folderMap]="folderMap" [path]="path" (navigatedNext)="navigateNext()" (navigatedPrevious)="navigatePrevious()"></app-photo>
   <mat-card class="mat-card">
-    <file-explorer [fileElements]="fileElements | async" [path]="currentPath" [canNavigateUp]="canNavigateUp" (folderAdded)="addFolder($event)"
+    <file-explorer [fileElements]="folderMap" [path]="currentPath" [canNavigateUp]="canNavigateUp" (folderAdded)="addFolder($event)"
       (elementRemoved)="removeElement($event)" (navigatedDown)="navigateToFolder($event)" (showFile)="showFile($event)" (navigatedUp)="navigateUp()" (elementRenamed)="renameElement($event)"
       (elementMoved)="moveElement($event)">
     </file-explorer>

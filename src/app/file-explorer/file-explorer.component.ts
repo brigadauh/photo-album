@@ -1,4 +1,5 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter
+  ,OnChanges, SimpleChanges, SimpleChange } from '@angular/core';
 import { FileElement } from './model/element';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { Observable } from 'rxjs/Observable';
@@ -33,20 +34,21 @@ export class FileExplorerComponent {
       if (window.innerWidth>=800 && window.innerWidth<1200) this.breakpoint = 4;
       if (window.innerWidth>=400 && window.innerWidth<800) this.breakpoint = 2;
       if (window.innerWidth<400) this.breakpoint = 1;
-      console.log(window.innerWidth);
+      //console.log(window.innerWidth);
   }
   onResize(event) {
     if (window.innerWidth>=1200) this.breakpoint = 8;
     if (window.innerWidth>=800 && window.innerWidth<1200) this.breakpoint = 4;
     if (window.innerWidth>=400 && window.innerWidth<800) this.breakpoint = 2;
     if (window.innerWidth<400) this.breakpoint = 1;
-    console.log(window.innerWidth);
+    //console.log(window.innerWidth);
   }
   deleteElement(element: FileElement) {
     this.elementRemoved.emit(element);
   }
 
   navigate(element: FileElement) {
+    //console.log('fileElements',this.fileElements);
     if (element.isFolder) {
       this.navigatedDown.emit(element);
     }

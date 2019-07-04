@@ -1,5 +1,7 @@
 
 <span id="photo_overlay" class="photo-overlay"  style="display:none;">
+  <span id="photo_nav_previous" (click)="photoNavPrevious()" [hidden]="!previousImage" class="photo-nav-previous">Prev</span>
+  <span id="photo_nav_next" (click)="photoNavNext()" [hidden]="!nextImage"  class="photo-nav-next">Next</span>
   <span class="photo-overlay-close" (click)="photoClose()">x</span>
-  <img src={{filename}} />
+  <img src={{currentImage}} />
 </span>

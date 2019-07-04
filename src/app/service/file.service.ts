@@ -73,7 +73,7 @@ export class FileService implements IFileService {
     }
     return this.querySubject.asObservable();
   }
-  _get(path): Promise<any> {
+  getdata(path): Promise<any> {
     return this.http.post(this.serviceUrl,{
       body: path
     })
@@ -92,7 +92,7 @@ export class FileService implements IFileService {
      })
      .catch(this.handleError);
   }
-  _getURL(path) {
+  getURL(path) {
     return this.serviceUrl+path;
   }
   renderFile(path):Promise<any> {
