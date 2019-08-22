@@ -20,7 +20,6 @@ export class AppComponent {
   path: string;
   nextImage:FileElement;
   previousImage:FileElement;
-
   constructor(public fileService: FileService) {}
 
   ngOnInit() {
@@ -48,8 +47,8 @@ export class AppComponent {
     //console.log('current element', element);
     this.imageFile = this.fileService.getURL('/'+this.currentPath+this.currentRoot.name);
     this.path = this.fileService.getURL('/'+this.currentPath);
-    let photo = document.getElementById('photo_overlay');
-    photo.style.display='';
+    let photoOverlay = document.getElementById('photo_overlay');
+    photoOverlay.style.display='';
     this.nextImage = null;
     this.previousImage = null;
     //console.log('this.folderMap',this.folderMap);

@@ -5,6 +5,7 @@ import { FileElement } from '../file-explorer/model/element';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Headers, Http } from '@angular/http';
+import { HttpParams } from '@angular/common/http';
 
 export interface IFileService {
   add(fileElement: FileElement);
@@ -19,6 +20,7 @@ export class FileService implements IFileService {
   private folderMap = new Map<string, FileElement>();
   private serviceUrl = '/api/photo';  // URL to
   private querySubject: BehaviorSubject<FileElement[]>;
+  private token: string = '';
 
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error); // for demo purposes only
@@ -26,7 +28,14 @@ export class FileService implements IFileService {
   }
 
 
-  constructor(private http: Http) {}
+  constructor(private http: Http) {
+    const url = window.location.href;
+    if (url.indexOf('?') !== -1) {
+      const httpParams = new HttpParams({ fromString: url.split('?')[1] });
+      this.token = httpParams.get('t');
+      console.log('token', this.token);
+    }
+  }
 
   add(fileElement: FileElement) {
     fileElement.id = v4();
@@ -75,7 +84,8 @@ export class FileService implements IFileService {
   }
   getdata(path): Promise<any> {
     return this.http.post(this.serviceUrl,{
-      body: path
+      body: path,
+      token: this.token
     })
     .toPromise()
     .then((response:any) => {
@@ -93,7 +103,7 @@ export class FileService implements IFileService {
      .catch(this.handleError);
   }
   getURL(path) {
-    return this.serviceUrl+path;
+    return this.serviceUrl + path +'?t=' + this.token;
   }
   renderFile(path):Promise<any> {
     return this.http.post(this.serviceUrl,{

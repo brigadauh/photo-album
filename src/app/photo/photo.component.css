@@ -1,13 +1,14 @@
 .photo-overlay{
-    position: fixed;
-    width: 80%;
-    max-width:1024px;
-    margin-left: auto;
-    margin-right: auto;
-    z-index: 100;
-    top: 50px;
-    left: 0;
-    right: 0;
+  position: fixed;
+      width: 80%;
+      max-width: 980px;
+      margin-left: auto;
+      margin-right: auto;
+      z-index: 100;
+      top: 10px;
+      left: 0;
+      right: 0;
+      display: block;
 }
 .photo-overlay img {
     width: 100%;
@@ -32,7 +33,7 @@
     color:white;
     font-weight: bold;
     cursor:pointer;
-    background-color:#00000015;
+    background-color:#00000025;
     padding:3px 3px 3px 10px;
     border-bottom-left-radius: 20px;
     border-top-left-radius: 20px;
@@ -45,7 +46,7 @@
     right: 30px;
     font-weight: bold;
     color:white;
-    background-color:#00000015;
+    background-color:#00000025;
     cursor:pointer;
     padding:3px 10px 3px 3px;
     border-bottom-right-radius: 20px;

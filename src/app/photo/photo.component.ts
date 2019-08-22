@@ -22,7 +22,22 @@ export class PhotoComponent implements OnInit {
   constructor() {}
 
   ngOnInit() {}
+  photoLoaded(event) {
+    let currentPhoto = event.target;
+    let photoWidth = currentPhoto.offsetWidth;
+    let photoHeight = currentPhoto.offsetHeight;
+    let photoOverlay = document.getElementById('photo_overlay');
 
+    if (photoHeight > photoWidth) {
+      photoOverlay.style.width = 'initial';
+      photoOverlay.style.height = '80%';
+    }
+    else {
+      photoOverlay.style.width = '80%';
+      photoOverlay.style.height = 'initial';
+    }
+    console.log('photo:', currentPhoto.offsetWidth,currentPhoto.offsetHeight);
+  }
   photoClose(){
     let photo = document.getElementById('photo_overlay');
     photo.style.display='none';
