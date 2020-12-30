@@ -1,7 +1,10 @@
 
-<div id="photo_overlay" style="display:none;" class="photo-overlay">
+<div id="photo_overlay" class="photo-overlay">
+  <video controls *ngIf = "imgType === 'video'">
+      <source src={{currentImage}} type="video/mp4">
+  </video>
   <span id="photo_nav_previous" (click)="photoNavPrevious()" [hidden]="!previousImage" class="photo-nav-previous">Prev</span>
   <span id="photo_nav_next" (click)="photoNavNext()" [hidden]="!nextImage"  class="photo-nav-next">Next</span>
   <span class="photo-overlay-close" (click)="photoClose()">x</span>
-  <img src={{currentImage}} (load)="photoLoaded($event)" />
+  <img src={{currentImage}} (load)="photoLoaded($event)" *ngIf = "imgType === 'pic'" />
 </div>

@@ -5,7 +5,9 @@ import { FileElement } from '../file-explorer/model/element';
 import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Headers, Http } from '@angular/http';
-import { HttpParams } from '@angular/common/http';
+import { HttpParams, HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
+import { Subject, throwError } from 'rxjs';
+import  { map } from 'rxjs/operators';
 
 export interface IFileService {
   add(fileElement: FileElement);
@@ -17,10 +19,12 @@ export interface IFileService {
 
 @Injectable()
 export class FileService implements IFileService {
+  allDataSubj = new Subject<any>();
   private folderMap = new Map<string, FileElement>();
   private serviceUrl = '/api/photo';  // URL to
   private querySubject: BehaviorSubject<FileElement[]>;
   private token: string = '';
+  private fileDataChanged = new Subject<any>();
 
   private handleError(error: any): Promise<any> {
     console.error('An error occurred', error); // for demo purposes only
@@ -28,7 +32,7 @@ export class FileService implements IFileService {
   }
 
 
-  constructor(private http: Http) {
+  constructor(private http: Http, private httpAsObservable: HttpClient) {
     const url = window.location.href;
     if (url.indexOf('?') !== -1) {
       const httpParams = new HttpParams({ fromString: url.split('?')[1] });
@@ -82,7 +86,7 @@ export class FileService implements IFileService {
     }
     return this.querySubject.asObservable();
   }
-  getdata(path): Promise<any> {
+  getdataAsPromise(path): Promise<any> {
     return this.http.post(this.serviceUrl,{
       body: path,
       token: this.token
@@ -102,8 +106,27 @@ export class FileService implements IFileService {
      })
      .catch(this.handleError);
   }
+  getdataAsObservable(path) {
+    const httpHeaders = new HttpHeaders().set('Content-Type', 'application/json; charset=utf-8');
+    return this.httpAsObservable.post(this.serviceUrl, {
+        body: path,
+        token: this.token
+      })
+    .pipe(map(r => {
+       this.folderMap = new Map<string, FileElement>();
+       // console.log('response.data', r['data']);
+
+       if (r['status'] && r['status'] === 'ok' && r['data']) {
+           r['data'].map((item:any) =>{
+             this.add({ name: item.name, isFolder: item.isFolder, parent: 'root' })
+           });
+        // console.log('folderMap', this.folderMap);
+       }
+       return this.folderMap;
+     }));
+  }
   getURL(path) {
-    return this.serviceUrl + path +'?t=' + this.token;
+    return this.serviceUrl + '?t=' + this.token + '&p=' + encodeURIComponent(path);
   }
   renderFile(path):Promise<any> {
     return this.http.post(this.serviceUrl,{
@@ -121,5 +144,8 @@ export class FileService implements IFileService {
 
   clone(element: FileElement) {
     return JSON.parse(JSON.stringify(element));
+  }
+  forceRefresh() {
+    this.fileDataChanged.next(); // triggers change of an observable, subscription callback will fire
   }
 }

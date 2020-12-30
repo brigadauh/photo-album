@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FileElement } from './file-explorer/model/element';
+import { Subscription } from 'rxjs';
 import { Observable } from 'rxjs/Observable';
 import { FileService } from './service/file.service';
 import { PhotoComponent } from './photo/photo.component';
@@ -9,7 +10,7 @@ import { PhotoComponent } from './photo/photo.component';
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
-export class AppComponent {
+export class AppComponent implements OnInit, OnDestroy {
   //public fileElements: Observable<FileElement[]>;
 
   currentRoot: FileElement;
@@ -17,13 +18,19 @@ export class AppComponent {
   currentPath: string = '';
   canNavigateUp = false;
   imageFile: any;
+  imgType: string;
   path: string;
   nextImage:FileElement;
   previousImage:FileElement;
+  imgDisplay: boolean;
+  getDataSubscription = new Subscription();
   constructor(public fileService: FileService) {}
 
   ngOnInit() {
     this.updateFileElementQuery();
+  }
+  ngOnDestroy() {
+    if (this.getDataSubscription) { this.getDataSubscription.unsubscribe(); }
   }
   addFolder(folder: { name: string }) {
     this.fileService.add({ isFolder: true, name: folder.name, parent: this.currentRoot ? this.currentRoot.id : 'root' });
@@ -46,9 +53,8 @@ export class AppComponent {
     this.currentRoot = element;
     //console.log('current element', element);
     this.imageFile = this.fileService.getURL('/'+this.currentPath+this.currentRoot.name);
+    this.imgType = this.fileType(this.imageFile.toLowerCase()).type;
     this.path = this.fileService.getURL('/'+this.currentPath);
-    let photoOverlay = document.getElementById('photo_overlay');
-    photoOverlay.style.display='';
     this.nextImage = null;
     this.previousImage = null;
     //console.log('this.folderMap',this.folderMap);
@@ -60,7 +66,7 @@ export class AppComponent {
         //looking for next picture
         for (let j = i+1; j < this.folderMap.length; j++) {
           fileName = this.folderMap[j];
-          if (fileName.name.toLowerCase().indexOf('.jpg')!== -1 || fileName.name.toLowerCase().indexOf('.png')!== -1 || fileName.name.toLowerCase().indexOf('.gif')!== -1 ){
+          if (this.fileType(fileName.name.toLowerCase()).playable) {
             this.nextImage = fileName;
             break;
           }
@@ -68,18 +74,52 @@ export class AppComponent {
         break;
       }
       //defining previous picture
-      if (fileName.name.toLowerCase().indexOf('.jpg')!== -1 || fileName.name.toLowerCase().indexOf('.png')!== -1 || fileName.name.toLowerCase().indexOf('.gif')!== -1 ){
+      if (this.fileType(fileName.name.toLowerCase()).playable) {
         this.previousImage = fileName;
       }
     }
+    this.imgDisplay = true;
+
     //console.log('prev/next:',this.previousImage, this.nextImage);
 
   }
+  fileType(file: string): any {
+    let ret = {'type': 'unknown', 'playable': false};
+    if (file.indexOf('.jpg') !== -1 ||
+      file.indexOf('.png') !== -1 ||
+      file.indexOf('.gif') !== -1 ) {
+        ret = {'type':'pic', 'playable': true};
+    }
+    else if (file.indexOf('.mp4') !== -1  ||
+      file.indexOf('.mov') !== -1 ||
+      file.indexOf('.vob') !== -1) {
+        ret = {'type':'video', 'playable': true};
+    }
+    return ret;
+  }
   navigateNext() {
-    this.showFile(this.nextImage);
+    this.imgType = 'unknown';
+    this.imgDisplay = false;
+    if (this.fileType(this.nextImage.name.toLowerCase()).type === 'video') {
+      setTimeout( () => {
+        this.showFile(this.nextImage);
+      },100);
+    }
+    else {
+      this.showFile(this.nextImage);
+    }
   }
   navigatePrevious() {
-    this.showFile(this.previousImage);
+    this.imgType = 'unknown';
+    this.imgDisplay = false;
+    if (this.fileType(this.previousImage.name.toLowerCase()).type === 'video') {
+      setTimeout( () => {
+        this.showFile(this.previousImage);
+      },100);
+    }
+    else {
+      this.showFile(this.previousImage);
+    }
   }
   navigateUp() {
     // if (this.currentRoot && this.currentRoot.parent === 'root') {
@@ -103,7 +143,7 @@ export class AppComponent {
   }
 
   updateFileElementQuery() {
-    this.fileService.getdata('/'+this.currentPath).then((folderMap) => {
+    this.getDataSubscription = this.fileService.getdataAsObservable('/'+this.currentPath).subscribe((folderMap) => {
       //console.log('updateFileElementQuery',this.currentPath, folderMap);
       //this.fileElements = this.fileService.queryFolderMap();
       let result = [];

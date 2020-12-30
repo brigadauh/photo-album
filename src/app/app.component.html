@@ -1,8 +1,25 @@
 <div style="padding: 100px; height: 100%; box-sizing: border-box;">
-  <app-photo [currentImage]="imageFile" [previousImage]="previousImage" [nextImage]="nextImage" [folderMap]="folderMap" [path]="path" (navigatedNext)="navigateNext()" (navigatedPrevious)="navigatePrevious()"></app-photo>
+  <app-photo *ngIf="imgDisplay"
+    [currentImage]="imageFile"
+    [imgType]="imgType"
+    [previousImage]="previousImage"
+    [nextImage]="nextImage"
+    [folderMap]="folderMap"
+    [path]="path"
+    (navigatedNext)="navigateNext()"
+    (navigatedPrevious)="navigatePrevious()"
+    (close)="imgDisplay = false">
+  </app-photo>
   <mat-card class="mat-card">
-    <file-explorer [fileElements]="folderMap" [path]="currentPath" [canNavigateUp]="canNavigateUp" (folderAdded)="addFolder($event)"
-      (elementRemoved)="removeElement($event)" (navigatedDown)="navigateToFolder($event)" (showFile)="showFile($event)" (navigatedUp)="navigateUp()" (elementRenamed)="renameElement($event)"
+    <file-explorer
+      [fileElements]="folderMap"
+      [path]="currentPath"
+      [canNavigateUp]="canNavigateUp"
+      (folderAdded)="addFolder($event)"
+      (elementRemoved)="removeElement($event)"
+      (navigatedDown)="navigateToFolder($event)"
+      (showFile)="showFile($event)"
+      (navigatedUp)="navigateUp()" (elementRenamed)="renameElement($event)"
       (elementMoved)="moveElement($event)">
     </file-explorer>
   </mat-card>

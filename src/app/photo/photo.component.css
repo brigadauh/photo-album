@@ -13,6 +13,9 @@
 .photo-overlay img {
     width: 100%;
 }
+.photo-overlay video {
+    width: 100%;
+}
 .photo-overlay-close {
     position: absolute;
     right: -7px;

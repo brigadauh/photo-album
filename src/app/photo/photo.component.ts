@@ -11,13 +11,15 @@ import { Observable } from 'rxjs/Observable';
 export class PhotoComponent implements OnInit {
   @Input() path: string;
   @Input() currentImage: string;
+  @Input() imgType: string;
   @Input() nextImage: string;
   @Input() previousImage: string;
   @Input() folderMap: FileElement[];
   @Output() navigatedNext = new EventEmitter<FileElement>();
   @Output() navigatedPrevious = new EventEmitter<FileElement>();
+  @Output() close = new EventEmitter<FileElement>();
 
-  img:any;
+  img: any;
   filePosition: number = 0;
   constructor() {}
 
@@ -39,8 +41,7 @@ export class PhotoComponent implements OnInit {
     console.log('photo:', currentPhoto.offsetWidth,currentPhoto.offsetHeight);
   }
   photoClose(){
-    let photo = document.getElementById('photo_overlay');
-    photo.style.display='none';
+    this.close.emit();
   }
   photoNavPrevious() {
     this.navigatedPrevious.emit();
